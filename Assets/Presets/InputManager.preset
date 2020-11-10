@@ -14,7 +14,7 @@ Preset:
   m_Properties:
   - target: {fileID: 0}
     propertyPath: m_Axes.Array.size
-    value: 8
+    value: 9
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Axes.Array.data[0].m_Name
@@ -494,5 +494,65 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_Axes.Array.data[7].joyNum
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].m_Name
+    value: Menu
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].descriptiveName
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].descriptiveNegativeName
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].negativeButton
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].positiveButton
+    value: escape
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].altNegativeButton
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].altPositiveButton
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].gravity
+    value: 1000
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].dead
+    value: 0.001
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].sensitivity
+    value: 1000
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].snap
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].invert
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].type
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].axis
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Axes.Array.data[8].joyNum
     value: 0
     objectReference: {fileID: 0}
