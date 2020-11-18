@@ -6,17 +6,12 @@ public class EnemyControllerTest : EnemyControllerABC
 {
     protected override void InitializeWeakPoints()
     {
-        AddWeakPoint(new Vector2(1.919f, 0), 20);
-        AddWeakPoint(new Vector2(-1.919f, 0), 10);
+        AddWeakPoint(new Vector2(1.919f, 0), 6);
+        AddWeakPoint(new Vector2(-1.919f, 0), 6);
     }
 
-    protected override void UpdateWeakPoints() 
+    protected override void UpdateChildSpecific() 
     { 
         return;
-    }
-
-    public override void HandleAttack(WeakPoint weakPoint, int lockOns)
-    {
-        Debug.Log($"Damaged weak point number {weakPoints.IndexOf(weakPoint)} for {lockOns} damage.");
     }
 }

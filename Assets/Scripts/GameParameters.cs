@@ -11,15 +11,24 @@ public class GameParameters : Singleton<GameParameters>
     public float playerSpeedNormal;
 
     [Header("Dashing")]
-    public bool dashHoldingAllowed;
-    public float dashDistance;
-    public float dashDuration;
-    public float dashCooldown;
+    public bool playerDashHoldingAllowed;
+    public float playerDashDistance;
+    public float playerDashDuration;
+    public float playerDashCooldown;
 
     [Header("Attacking")]
-    public List<float> attackLockOnTimes;
-    public List<int> attackLockOnMaxCounts;
+    public List<AttackLockOnStep> playerAttackLockOnSteps;
 
     [Header("Miscellaneous")]
     public float cameraBoundsOffset;
+
+    [Header("Enemy Fighter")]
+    public int enemyFighterMaxLockOns;
+}
+
+[Serializable]
+public struct AttackLockOnStep
+{
+    public float time;
+    public int count;
 }

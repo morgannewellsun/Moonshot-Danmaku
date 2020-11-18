@@ -8,12 +8,12 @@ public class PlayerController : Singleton<PlayerController>
 
     public int xMovementDir = 0;
     public int yMovementDir = 0;
-    public Vector2 normMovementDir = Vector2.zero;
+    public Vector2 normVelocity = Vector2.zero;
 
     public bool isDashing = false;
     public float dashStartTime = 0f;
-    public Vector2 dashOrigin = Vector2.zero;
-    public Vector2 dashTarget = Vector2.zero;
+    public Vector2 dashOriginPos = Vector2.zero;
+    public Vector2 dashTargetPos = Vector2.zero;
 
     public bool isAttacking = false;
     public float attackStartTime = 0f;
@@ -48,7 +48,7 @@ public class PlayerController : Singleton<PlayerController>
     {
         xMovementDir = (Input.GetButton("Right") ? 1 : 0) - (Input.GetButton("Left") ? 1 : 0);
         yMovementDir = (Input.GetButton("Up") ? 1 : 0) - (Input.GetButton("Down") ? 1 : 0);
-        normMovementDir = new Vector2(xMovementDir, yMovementDir).normalized;
+        normVelocity = new Vector2(xMovementDir, yMovementDir).normalized;
     }
 
     private void SetAndClampPlayerPosition(float x, float y)
@@ -71,7 +71,7 @@ public class PlayerController : Singleton<PlayerController>
                 Input.GetButton("Focus") 
                 ? GameParameters.Instance.playerSpeedFocused 
                 : GameParameters.Instance.playerSpeedNormal);
-            Vector2 deltaPosition = normMovementDir * movementSpeed * Time.deltaTime;
+            Vector2 deltaPosition = normVelocity * movementSpeed * Time.deltaTime;
             SetAndClampPlayerPosition(transform.position.x + deltaPosition.x, transform.position.y + deltaPosition.y);
         }
     }
@@ -80,21 +80,21 @@ public class PlayerController : Singleton<PlayerController>
     {
         if (isDashing)
         {
-            float dashInterpolationFactor = (Time.time - dashStartTime) / GameParameters.Instance.dashDuration;
+            float dashInterpolationFactor = (Time.time - dashStartTime) / GameParameters.Instance.playerDashDuration;
             if (dashInterpolationFactor >= 1)
             {
                 isDashing = false;
-                SetAndClampPlayerPosition(dashTarget.x, dashTarget.y);
+                SetAndClampPlayerPosition(dashTargetPos.x, dashTargetPos.y);
             }
             else
             {
-                Vector2 dashInterpolatedPosition = Vector2.Lerp(dashOrigin, dashTarget, dashInterpolationFactor);
+                Vector2 dashInterpolatedPosition = Vector2.Lerp(dashOriginPos, dashTargetPos, dashInterpolationFactor);
                 SetAndClampPlayerPosition(dashInterpolatedPosition.x, dashInterpolatedPosition.y);
             }
         }
-        else if (GameParameters.Instance.dashHoldingAllowed ? Input.GetButton("Dash") : Input.GetButtonDown("Dash"))
+        else if (GameParameters.Instance.playerDashHoldingAllowed ? Input.GetButton("Dash") : Input.GetButtonDown("Dash"))
         {
-            if (Time.time - dashStartTime < GameParameters.Instance.dashCooldown)
+            if (Time.time - dashStartTime < GameParameters.Instance.playerDashCooldown)
             {
                 Debug.Log("Dash on cooldown");
             }
@@ -106,8 +106,8 @@ public class PlayerController : Singleton<PlayerController>
             {
                 isDashing = true;
                 dashStartTime = Time.time;
-                dashOrigin = new Vector2(this.transform.position.x, this.transform.position.y);
-                dashTarget = dashOrigin + normMovementDir * GameParameters.Instance.dashDistance;
+                dashOriginPos = new Vector2(this.transform.position.x, this.transform.position.y);
+                dashTargetPos = dashOriginPos + normVelocity * GameParameters.Instance.playerDashDistance;
             }
         }
     }
@@ -133,11 +133,11 @@ public class PlayerController : Singleton<PlayerController>
         {
             int maximumLockOns = 0;
             float lockOnTime = Time.time - attackStartTime;
-            for(int i = 0; i < GameParameters.Instance.attackLockOnTimes.Count; i++)
+            foreach(AttackLockOnStep step in GameParameters.Instance.playerAttackLockOnSteps)
             {
-                if (lockOnTime >= GameParameters.Instance.attackLockOnTimes[i])
+                if (lockOnTime >= step.time)
                 {
-                    maximumLockOns = Mathf.Max(maximumLockOns, GameParameters.Instance.attackLockOnMaxCounts[i]);
+                    maximumLockOns = Mathf.Max(maximumLockOns, step.count);
                 }
             }
             if (totalLockOnCount < maximumLockOns)
