@@ -4,23 +4,25 @@ using UnityEngine;
 
 public class PlayerController : Singleton<PlayerController>
 {
-    public Rect posBounds;
-
+    public Rect posBounds = Rect.zero;
     public int xMovementDir = 0;
     public int yMovementDir = 0;
     public Vector2 normVelocity = Vector2.zero;
-
     public bool isDashing = false;
     public float dashStartTime = 0f;
     public Vector2 dashOriginPos = Vector2.zero;
     public Vector2 dashTargetPos = Vector2.zero;
-
     public bool isAttacking = false;
     public float attackStartTime = 0f;
     public int totalLockOnCount = 0;
     public Dictionary<WeakPoint, int> weakPointLockOnCounts = new Dictionary<WeakPoint, int>();
 
     void Awake()
+    {
+        
+    }
+
+    void Start()
     {
         InitializePosBounds();
     }
@@ -124,7 +126,7 @@ public class PlayerController : Singleton<PlayerController>
             isAttacking = false;
             foreach (KeyValuePair<WeakPoint, int> pair in weakPointLockOnCounts)
             {
-                pair.Key.ApplyAttack(pair.Value);
+                pair.Key.enemyController.ApplyAttack(pair.Key, pair.Value);
             }
             totalLockOnCount = 0;
             weakPointLockOnCounts = new Dictionary<WeakPoint, int>();
@@ -151,7 +153,8 @@ public class PlayerController : Singleton<PlayerController>
                         collectedWeakPoints.Add(weakPoint);
                     }
                 }
-                collectedWeakPoints.Sort();
+                collectedWeakPoints.Sort((a, b) => 
+                    (a.position - (Vector2)this.transform.position).magnitude.CompareTo((b.position - (Vector2)this.transform.position).magnitude));
                 foreach (WeakPoint weakPoint in collectedWeakPoints)
                 {
                     if (!weakPoint.isActive)

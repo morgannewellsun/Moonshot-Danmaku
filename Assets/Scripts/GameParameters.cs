@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
 
 public class GameParameters : Singleton<GameParameters>
@@ -21,6 +20,7 @@ public class GameParameters : Singleton<GameParameters>
 
     [Header("Miscellaneous")]
     public float cameraBoundsOffset;
+    public int bulletSortingMaxCount;
 
     [Header("Enemy Fighter")]
     public int enemyFighterMaxLockOns;

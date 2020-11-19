@@ -1,13 +1,13 @@
-﻿using JetBrains.Annotations;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 public class EnemyControllerFighter : EnemyControllerABC
 {
-    public Vector2 movementDirection = Vector2.zero;
-    public List<ConstAccelSegment> constAccelSegments = new List<ConstAccelSegment>();
+    public Vector2 movementDirection;
+    public List<ConstAccelSegment> constAccelSegments;
+
     public float distanceMoved = 0f;
 
     protected override void InitializeWeakPoints()
@@ -26,18 +26,20 @@ public class EnemyControllerFighter : EnemyControllerABC
 
     private void UpdateLinearMovement()
     {
-        ConstAccelSegment currentSegment = null;
+        ConstAccelSegment currentSegment = new ConstAccelSegment();
+        bool found = false;
         foreach(ConstAccelSegment segment in constAccelSegments)
         {
             if (distanceMoved >= segment.startDistance && distanceMoved < segment.endDistance)
             {
                 currentSegment = segment;
+                found = true;
                 break;
             }
         }
-        if (currentSegment is null) {
+        if (!found) {
             Debug.Log("Appropriate movement segment not found, deleting enemy fighter.");
-            Destroy(this);
+            Destroy(this.gameObject);
         }
         else
         {
@@ -65,7 +67,8 @@ public class EnemyControllerFighter : EnemyControllerABC
     }
 }
 
-public class ConstAccelSegment
+[Serializable]
+public struct ConstAccelSegment
 {
     public float startDistance;
     public float startSpeed;
