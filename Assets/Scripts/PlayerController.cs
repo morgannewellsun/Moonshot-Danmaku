@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerController : Singleton<PlayerController>
 {
+    [Header("Don't Modify")]
+
     public Rect posBounds = Rect.zero;
     public int xMovementDir = 0;
     public int yMovementDir = 0;
@@ -29,6 +31,7 @@ public class PlayerController : Singleton<PlayerController>
 
     void Update()
     {
+        UpdateCheckPlayerDamage();
         UpdateMovementVariables();
         UpdatePlayerPosition();
         UpdateDashState();
@@ -44,6 +47,15 @@ public class PlayerController : Singleton<PlayerController>
             ymin: -1 * mainCamera.orthographicSize + GameParameters.Instance.cameraBoundsOffset,
             xmax: halfWidth - GameParameters.Instance.cameraBoundsOffset,
             ymax: mainCamera.orthographicSize - GameParameters.Instance.cameraBoundsOffset);
+    }
+
+    private void UpdateCheckPlayerDamage()
+    {
+        if (DamageZoneControllerABC.IsAnyCollidingWithPlayer())
+        {
+            Debug.Log("Player was hit !!!");
+
+        }
     }
 
     private void UpdateMovementVariables()

@@ -2,19 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(SpriteRenderer))]
 public abstract class DamageZoneControllerABC : MonoBehaviour
 {
+    [Header("Don't Modify")]
+
     public static List<DamageZoneControllerABC> activeDamageZoneControllers = new List<DamageZoneControllerABC>();
 
-    void Awake()
-    {
-        activeDamageZoneControllers.Add(this);
-    }
+    public abstract bool IsCollidingWithPlayer();
 
-    void OnDestroy()
+    public static bool IsAnyCollidingWithPlayer()
     {
-        activeDamageZoneControllers.Remove(this);
+        foreach (DamageZoneControllerABC damageZone in activeDamageZoneControllers)
+        {
+            if (damageZone.IsCollidingWithPlayer())
+            {
+                return true;
+            }
+        }
+        return false;
     }
-
-    public abstract bool CheckPlayerCollision();
 }

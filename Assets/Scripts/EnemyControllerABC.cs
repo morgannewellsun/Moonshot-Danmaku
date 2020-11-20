@@ -5,45 +5,34 @@ using UnityEngine;
 
 public abstract class EnemyControllerABC : MonoBehaviour
 {
+    [Header("Don't Modify")]
+
     public static List<EnemyControllerABC> activeEnemyControllers = new List<EnemyControllerABC>();
+
+    public static Int16 enemySortingNextZ = Int16.MinValue;
 
     public List<WeakPoint> weakPoints = new List<WeakPoint>();
     public List<DamageZoneControllerABC> damageZoneControllers = new List<DamageZoneControllerABC>();
 
-    void Awake()
+    protected virtual void Update()
     {
-        activeEnemyControllers.Add(this);
-        InitializeWeakPoints();
-    }
-
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        UpdateChildSpecific();
         UpdateWeakPointPositions();
     }
 
-    void OnDestroy()
+    public void ApplyAttack(WeakPoint weakPoint, int lockOns)
     {
-        activeEnemyControllers.Remove(this);
+        Debug.Log($"Damaged weak point number {weakPoints.IndexOf(weakPoint)} for {lockOns} damage.");
     }
 
-    protected abstract void InitializeWeakPoints();
-
-    protected abstract void UpdateChildSpecific();
-
-    private void UpdateWeakPointPositions()
+    protected static Int16 GetAndIncrementEnemySortingNextZ()
     {
-        foreach (WeakPoint weakPoint in weakPoints)
+        Int16 returnValue = enemySortingNextZ;
+        enemySortingNextZ += 1;
+        if (enemySortingNextZ == Int16.MaxValue)
         {
-            weakPoint.position = (
-                weakPoint.relativePosition
-                + new Vector2(this.transform.position.x, this.transform.position.y));
+            enemySortingNextZ = Int16.MinValue;
         }
+        return returnValue;
     }
 
     protected void AddWeakPoint(Vector2 relativePosition, int maxLockOns, bool isActive = true)
@@ -57,9 +46,14 @@ public abstract class EnemyControllerABC : MonoBehaviour
         weakPoints.Add(newWeakPoint);
     }
 
-    public void ApplyAttack(WeakPoint weakPoint, int lockOns)
+    private void UpdateWeakPointPositions()
     {
-        Debug.Log($"Damaged weak point number {weakPoints.IndexOf(weakPoint)} for {lockOns} damage.");
+        foreach (WeakPoint weakPoint in weakPoints)
+        {
+            weakPoint.position = (
+                weakPoint.relativePosition
+                + new Vector2(this.transform.position.x, this.transform.position.y));
+        }
     }
 }
 

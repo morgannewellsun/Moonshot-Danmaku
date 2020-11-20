@@ -1,80 +1,87 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class BulletController : DamageZoneControllerABC
 {
-    public Vector2 velocity;
-    public float duration;
+    [Header("Don't Modify")]
 
-    public static int bulletSortingMaxCount = -1;
-    public static float bulletSortingDeltaZ = -1f;
-    public static float bulletSortingInitialZ = -1f;
-    public static float bulletSortingFinalZ = -1f;
-    public static float bulletSortingNextZ = -1f;
-    public static bool bulletSortingInitialized = false;
+    public static Int16 bulletSortingNextZ = Int16.MinValue;
+    public static bool initialized = false;
+    public static float lengthScale;
 
+    public Collider2D cachedCollider;
+    public Vector2 velocity = Vector2.zero;
     public float expiryTime = 0f;
-
-    public Collider2D cachedCollider = null;
 
     void Awake()
     {
-        expiryTime = Time.time + duration;
+        cachedCollider = this.GetComponent<Collider2D>();
     }
 
     void Start()
     {
-        InitializeBulletSortingParamsIfNeeded();
-        transform.position = new Vector3(
-            this.transform.position.x,
-            this.transform.position.y,
-            GetAndIncrementBulletSortingNextZ());
+        InitializeOnce();
     }
 
     void Update()
     {
-        CheckBulletExpiry();
+        UpdateCheckBulletExpiry();
         UpdateBulletPosition();
     }
 
-    public override bool CheckPlayerCollision()
+    public static GameObject SpawnAndInitialize(GameObject bulletPrefab, Vector2 position, Vector2 velocity)
     {
-        if (cachedCollider is null)
+        GameObject newBullet = Instantiate(
+            bulletPrefab, new Vector3(position.x, position.y, 0), Quaternion.identity);
+        bool found = newBullet.TryGetComponent(out BulletController newBulletController);
+        if (!found)
         {
-            cachedCollider = this.GetComponent<Collider2D>();
+            newBulletController = newBullet.AddComponent<BulletController>();
         }
+        activeDamageZoneControllers.Add(newBulletController);
+        newBulletController.velocity = velocity;
+        newBulletController.expiryTime = Time.time + lengthScale / velocity.magnitude;
+        found = newBullet.TryGetComponent(out SpriteRenderer newBulletSpriteRenderer);
+        if (!found)
+        {
+            throw new ArgumentException("Bullet prefab must have a sprite renderer attached.");
+        }
+        newBulletSpriteRenderer.sortingOrder = GetAndIncrementBulletSortingNextZ();
+        return newBullet;
+    }
+
+    public override bool IsCollidingWithPlayer()
+    {
         return cachedCollider.OverlapPoint(PlayerController.Instance.transform.position);
     }
 
-    private static void InitializeBulletSortingParamsIfNeeded()
+    private static void InitializeOnce()
     {
-        if (!bulletSortingInitialized)
+        if (!initialized)
         {
-            bulletSortingMaxCount = GameParameters.Instance.bulletSortingMaxCount;
-            bulletSortingDeltaZ = (Camera.main.nearClipPlane - Camera.main.farClipPlane) / bulletSortingMaxCount;
-            bulletSortingInitialZ = Camera.main.farClipPlane + bulletSortingDeltaZ;
-            bulletSortingFinalZ = Camera.main.nearClipPlane - bulletSortingDeltaZ;
-            bulletSortingNextZ = bulletSortingInitialZ;
-            bulletSortingInitialized = true;
+            lengthScale = 2 * Camera.main.orthographicSize * Mathf.Sqrt(1 + Mathf.Pow(Screen.width / Screen.height, 2));
+            initialized = true;
         }
     }
 
-    private static float GetAndIncrementBulletSortingNextZ()
+    private static Int16 GetAndIncrementBulletSortingNextZ()
     {
-        float returnValue = bulletSortingNextZ;
-        bulletSortingNextZ += bulletSortingDeltaZ;
-        if (bulletSortingNextZ <= bulletSortingFinalZ)
+        Int16 returnValue = bulletSortingNextZ;
+        bulletSortingNextZ += 1;
+        if (bulletSortingNextZ == Int16.MaxValue)
         {
-            bulletSortingNextZ = bulletSortingInitialZ;
+            bulletSortingNextZ = Int16.MinValue;
         }
         return returnValue;
     }
 
-    private void CheckBulletExpiry()
+    private void UpdateCheckBulletExpiry()
     {
         if (Time.time >= expiryTime)
         {
+            activeDamageZoneControllers.Remove(this);
             Destroy(this.gameObject);
         }
     }

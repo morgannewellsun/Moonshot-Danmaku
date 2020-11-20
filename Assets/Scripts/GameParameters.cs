@@ -20,7 +20,6 @@ public class GameParameters : Singleton<GameParameters>
 
     [Header("Miscellaneous")]
     public float cameraBoundsOffset;
-    public int bulletSortingMaxCount;
 
     [Header("Enemy Fighter")]
     public int enemyFighterMaxLockOns;
