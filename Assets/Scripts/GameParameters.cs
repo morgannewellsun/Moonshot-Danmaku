@@ -8,6 +8,7 @@ public class GameParameters : Singleton<GameParameters>
     [Header("Movement")]
     public float playerSpeedFocused;
     public float playerSpeedNormal;
+    public float playerSpeedAttacking = -1;
 
     [Header("Dashing")]
     public bool playerDashHoldingAllowed;
@@ -16,6 +17,7 @@ public class GameParameters : Singleton<GameParameters>
     public float playerDashCooldown;
 
     [Header("Attacking")]
+    public float playerAttackRange;
     public List<AttackLockOnStep> playerAttackLockOnSteps;
 
     [Header("Miscellaneous")]
@@ -23,6 +25,7 @@ public class GameParameters : Singleton<GameParameters>
 
     [Header("Enemy Fighter")]
     public int enemyFighterMaxLockOns;
+    public int enemyFighterMaxHealth;
 }
 
 [Serializable]

@@ -19,11 +19,6 @@ public class PlayerController : Singleton<PlayerController>
     public int totalLockOnCount = 0;
     public Dictionary<WeakPoint, int> weakPointLockOnCounts = new Dictionary<WeakPoint, int>();
 
-    void Awake()
-    {
-        
-    }
-
     void Start()
     {
         InitializePosBounds();
@@ -54,7 +49,7 @@ public class PlayerController : Singleton<PlayerController>
         if (DamageZoneControllerABC.IsAnyCollidingWithPlayer())
         {
             Debug.Log("Player was hit !!!");
-
+            transform.position = new Vector3(0, 0, this.transform.position.z);
         }
     }
 
@@ -75,16 +70,21 @@ public class PlayerController : Singleton<PlayerController>
 
     private void UpdatePlayerPosition()
     {
-        if (isDashing)
+        if (isDashing || (isAttacking && GameParameters.Instance.playerSpeedAttacking == 0))
         {
             return;
         }
         else
         {
-            float movementSpeed = (
-                Input.GetButton("Focus") 
-                ? GameParameters.Instance.playerSpeedFocused 
-                : GameParameters.Instance.playerSpeedNormal);
+            float movementSpeed = GameParameters.Instance.playerSpeedNormal;
+            if (Input.GetButton("Focus"))
+            {
+                movementSpeed = GameParameters.Instance.playerSpeedFocused;
+            }
+            if (GameParameters.Instance.playerSpeedAttacking > 0 && isAttacking)
+            {
+                movementSpeed = GameParameters.Instance.playerSpeedAttacking;
+            }
             Vector2 deltaPosition = normVelocity * movementSpeed * Time.deltaTime;
             SetAndClampPlayerPosition(transform.position.x + deltaPosition.x, transform.position.y + deltaPosition.y);
         }
@@ -157,7 +157,6 @@ public class PlayerController : Singleton<PlayerController>
             if (totalLockOnCount < maximumLockOns)
             {
                 List<WeakPoint> collectedWeakPoints = new List<WeakPoint>();
-
                 foreach(EnemyControllerABC enemyController in EnemyControllerABC.activeEnemyControllers)
                 {
                     foreach(WeakPoint weakPoint in enemyController.weakPoints)
@@ -165,11 +164,14 @@ public class PlayerController : Singleton<PlayerController>
                         collectedWeakPoints.Add(weakPoint);
                     }
                 }
-                collectedWeakPoints.Sort((a, b) => 
-                    (a.position - (Vector2)this.transform.position).magnitude.CompareTo((b.position - (Vector2)this.transform.position).magnitude));
+                collectedWeakPoints.Sort((a, b) => a.distanceFromPlayer.CompareTo(b.distanceFromPlayer));
                 foreach (WeakPoint weakPoint in collectedWeakPoints)
                 {
-                    if (!weakPoint.isActive)
+                    if (weakPoint.distanceFromPlayer > GameParameters.Instance.playerAttackRange)
+                    {
+                        break;
+                    }
+                    else if (!weakPoint.isActive)
                     {
                         continue;
                     }
@@ -188,8 +190,11 @@ public class PlayerController : Singleton<PlayerController>
                             totalLockOnCount += totalRemainingLockOns;
 
                             if (totalRemainingLockOns != 0)
+                            {
                                 Debug.Log($"Locking on {totalRemainingLockOns} times.");
-
+                                weakPoint.enemyController.gameObject.GetComponent<SpriteHighlightController>()
+                                    .highlight(0.2f);
+                            }
                             break;
                         }
                         else
@@ -198,7 +203,11 @@ public class PlayerController : Singleton<PlayerController>
                             totalLockOnCount += weakPointRemainingLockOns;
 
                             if (weakPointRemainingLockOns != 0)
+                            {
                                 Debug.Log($"Locking on {weakPointRemainingLockOns} times.");
+                                weakPoint.enemyController.gameObject.GetComponent<SpriteHighlightController>()
+                                    .highlight(0.2f);
+                            }
                         }
                     }
                 }

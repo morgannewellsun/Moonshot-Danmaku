@@ -30,6 +30,14 @@ public class EnemyControllerFighter : EnemyControllerABC
     public int shootingTimeLoopBulletsShot = 0;
     public float shootingTimeLoopStartTime = -1f;
 
+    public SpriteHighlightController highlightController;
+
+    protected override void Awake()
+    {
+        highlightController = this.GetComponent<SpriteHighlightController>();
+        base.Awake();
+    }
+
     protected override void Update()
     {
         UpdateLinearMovement();
@@ -63,11 +71,26 @@ public class EnemyControllerFighter : EnemyControllerABC
         return newFighter;
     }
 
+    protected override int GetMaxHealth()
+    {
+        return GameParameters.Instance.enemyFighterMaxHealth;
+    }
+
+    protected override void HandleWeakPointDamage(WeakPoint weakPoint, int lockOns)
+    {
+        health -= lockOns;
+        highlightController.highlight2(0.2f);
+        if (health <= 0)
+        {
+            activeEnemyControllers.Remove(this);
+            this.movementDirection = Vector2.zero;
+            Destroy(this.gameObject, 0.2f);
+        }
+    }
+
     private void InitializeWeakPoints()
     {
-        AddWeakPoint(
-            new Vector2(this.transform.position.x, this.transform.position.y),
-            GameParameters.Instance.enemyFighterMaxLockOns);
+        AddWeakPoint(new Vector2(0, 0), GameParameters.Instance.enemyFighterMaxLockOns);
     }
 
     private void UpdateLinearMovement()
