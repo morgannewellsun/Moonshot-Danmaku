@@ -62,12 +62,6 @@ public class EnemyControllerFighter : EnemyControllerABC
         newFighterController.InitializeWeakPoints();
         newFighterController.movementDirection = movementDirection;
         newFighterController.shootingTimeLoopStartTime = Time.time + shootingDelay;
-        found = newFighter.TryGetComponent(out SpriteRenderer newFighterSpriteRenderer);
-        if (!found)
-        {
-            throw new ArgumentException("Fighter prefab must have a sprite renderer attached.");
-        }
-        newFighterSpriteRenderer.sortingOrder = GetAndIncrementEnemySortingNextZ();
         return newFighter;
     }
 

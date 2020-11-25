@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(SpriteRenderer))]
 public class BulletController : DamageZoneControllerABC
 {
     [Header("Don't Modify")]
 
-    public static Int16 bulletSortingNextZ = Int16.MinValue;
     public static bool initialized = false;
     public static float lengthScale;
+    public static Int16Iterator zSortingValues = new Int16Iterator();
 
     public Collider2D cachedCollider;
     public Vector2 velocity = Vector2.zero;
@@ -18,6 +19,7 @@ public class BulletController : DamageZoneControllerABC
     void Awake()
     {
         cachedCollider = this.GetComponent<Collider2D>();
+        GetComponent<SpriteRenderer>().sortingOrder = zSortingValues.Pop();
     }
 
     void Start()
@@ -31,10 +33,10 @@ public class BulletController : DamageZoneControllerABC
         UpdateBulletPosition();
     }
 
-    public static GameObject SpawnAndInitialize(GameObject bulletPrefab, Vector2 position, Vector2 velocity)
+    public static GameObject SpawnAndInitialize(GameObject prefab, Vector2 position, Vector2 velocity)
     {
         GameObject newBullet = Instantiate(
-            bulletPrefab, new Vector3(position.x, position.y, 0), Quaternion.identity);
+            prefab, new Vector3(position.x, position.y, 0), Quaternion.identity);
         bool found = newBullet.TryGetComponent(out BulletController newBulletController);
         if (!found)
         {
@@ -43,12 +45,6 @@ public class BulletController : DamageZoneControllerABC
         activeDamageZoneControllers.Add(newBulletController);
         newBulletController.velocity = velocity;
         newBulletController.expiryTime = Time.time + lengthScale / velocity.magnitude;
-        found = newBullet.TryGetComponent(out SpriteRenderer newBulletSpriteRenderer);
-        if (!found)
-        {
-            throw new ArgumentException("Bullet prefab must have a sprite renderer attached.");
-        }
-        newBulletSpriteRenderer.sortingOrder = GetAndIncrementBulletSortingNextZ();
         return newBullet;
     }
 
@@ -64,17 +60,6 @@ public class BulletController : DamageZoneControllerABC
             lengthScale = 2 * Camera.main.orthographicSize * Mathf.Sqrt(1 + Mathf.Pow(Screen.width / Screen.height, 2));
             initialized = true;
         }
-    }
-
-    private static Int16 GetAndIncrementBulletSortingNextZ()
-    {
-        Int16 returnValue = bulletSortingNextZ;
-        bulletSortingNextZ += 1;
-        if (bulletSortingNextZ == Int16.MaxValue)
-        {
-            bulletSortingNextZ = Int16.MinValue;
-        }
-        return returnValue;
     }
 
     private void UpdateCheckBulletExpiry()
